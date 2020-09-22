@@ -16,6 +16,5 @@ It's quick and dirty, but it's faster than running a credentialled scan again.
 *Requires pysmb-1.1.27 from https://pypi.org/project/pysmb/#files  * 
 
 **checkcerts.sh**
-
 Checks and displays the signature algorithms for a complete certificate chain for (host:port).
 Example usage: checkcerts.sh google.com:443
