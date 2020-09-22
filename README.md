@@ -17,4 +17,4 @@ It's quick and dirty, but it's faster than running a credentialled scan again.
 
 **checkcerts.sh**
 Checks and displays the signature algorithms for a complete certificate chain for (host:port).
-Example usage: checkcerts.sh google.com:443
+Example usage: checkcerts.sh google.com:443 
