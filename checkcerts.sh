@@ -71,7 +71,7 @@ echo "----------------------------------------" && echo;
 #
 # NOTES:
 # ~~~~~~
-# If the root cert doesn't download, it's probably already stored on your machine.
+# If the root cert doesn't download, that's probably because it's already stored on your machine.
 # openssl s_client only shows you the certificate chain sent to the client. This chain does not usually include 
 # the root certificate itself, which is contained in the local trust store and is not sent by the server.
 # Use the "Y" option in the script to get the certificate of the issuer of the highest intermediate certificate.
@@ -81,6 +81,10 @@ echo "----------------------------------------" && echo;
 # now do cat /etc/ssl/certs/3513523f.0 (you need to append the".0"); copy, paste and save it as root.pem
 # now run
 # openssl x509 -in root.pem -text -noout -certopt ca_default -certopt no_serial -certopt no_subject -certopt no_extensions -certopt no_signame
-# to get the validation you need.
-
+# to get the information you need.
+#
+# Note that Root certificates are different to intermediate certificates. 
+# Root certs can actually be SHA-1 certificates because the OS implicitly trusts the root certificate public key directly. 
+# A root certificate is self-signed and isn't signed by another entity that has been given authority.
+# For the same reason, any self-signed certificate can use the SHA-1 algorithm.
 
