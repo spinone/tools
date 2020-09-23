@@ -17,6 +17,6 @@ It's quick and dirty, but it's faster than running a credentialled scan again.
 
 **checkcerts.sh**  
 Checks and displays the signature algorithms for a complete certificate chain for a host, e.g. 8.8.8.8 or microsoft.com  
-Script prompts for which port to use, and uses SNI to accomodate multiple DNS hostnames hosted on a single server.  
+Script prompts for which port to use, and uses SNI to accommodate multiple DNS hostnames hosted on a single server.  
 Optional display of details for the issuer/root certificate of the last intermediate certificate.  
 Example usage: checkcerts.sh www.google.com
