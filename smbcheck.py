@@ -7,9 +7,19 @@
 # Unzip, cd to the unzipped folder and use "sudo python setup.py install"
 # Requires nmap to be installed and on the path
 
-__author__ = 'Chris Rundle (crundle@blackberry.com)'
-__version__ = '1.0.0'
-__last_modification__ = '2019.03.12'
+# NESSUS NOTE:
+# To disable remote UAC for a non-built-in Administrator
+# Set HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\LocalAccountTokenFilterPolicy
+# If UAC is disabled, LocalAccountTokenFilterPolicy does not need to be set.
+# If UAC is enabled, LocalAccountTokenFilterPolicy must be set to 1.  (DWORD 32-bit)
+# Otherwise Nessus cannot run with or elevate to administrative privileges to start the remote registry service. 
+
+
+__author__ = 'Chris Rundle (chris@chrisrundle.co.uk)'
+__version__ = '1.0.1'
+__last_modification__ = '2019.11.14'
+
+# 1.0.1: Merged basics() with target check and added NONE for a blank domain
 
 # Import modules #
 
@@ -25,13 +35,6 @@ except:
     print "[***] Requires pysmb-1.1.27 from https://pypi.org/project/pysmb/#files\n[!] Cannot continue.\n"
     sys.exit()
 
-def basics():
-# check args
-    if len(sys.argv)<4:
-        print "\n[!] Incorrect arguments...\n"
-        usage()
-        sys.exit()
-
 # check nmap
     isx = subprocess.call("type " + "nmap", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
     if not isx:
@@ -39,7 +42,7 @@ def basics():
 
 
 def usage():
-        print "SMBCHECK v" + __version__ + "\nUsage:\n       Please provide the credentials to use to connect (username, password and domain)\n       and a filename containing the list of machines to connect to (IP addresses or FQDNs):\n       smbcheck.py -u:USERNAME -p:PASSWORD -d:DOMAIN -L:FILENAME [AND/OR] HOST\n       e.g. python smbcheck.py -u:chris -p:Password123 -d:WALES -L:hostlist.txt 192.168.5.207 10.2.3.0/24\n       (-v = verbose output)"
+        print "SMBCHECK v" + __version__ + "\nUsage:\n       Please provide the credentials to use to connect (username, password and domain) and a Target \n       AND/OR a filename containing the list of machines to connect to (IP addresses or FQDNs):\n       smbcheck.py -u:USERNAME -p:PASSWORD -d:DOMAIN -L:FILENAME [AND/OR] HOST\n       e.g. python smbcheck.py -u:chris -p:Password123 -d:WALES -L:hostlist.txt 192.168.5.207 10.2.3.0/24\n       For a blank domain, set domain to NONE (-d:NONE).\n       (-v = verbose output)\n"
 
 def chkport(IP): # Check if port 445 is open
     open445=False
@@ -68,7 +71,7 @@ def smbscan(target):
         print "[!] Unable to connect to %s (%s)" % (target, str(e))
         return
 
-    FA=False # Found ADMIN$ Share
+    FA=False # Found ADMIN$ Share flag
 
     try:
         shares = conn.listShares()
@@ -81,9 +84,10 @@ def smbscan(target):
         for share in shares:
             #if not share.isSpecial and share.name not in ['NETLOGON', 'SYSVOL']:
             if share.name in ['ADMIN$']:
-                FA=True            
+                FA=True          
                 try:
                     sharedfiles = conn.listPath(share.name, '/')
+
                     if len(sharedfiles)>=1:
                         print "[+] The ADMIN$ share can be accessed using the credentials supplied and contains %s Shared files." % len(sharedfiles)
                     else:
@@ -91,7 +95,7 @@ def smbscan(target):
                 except:
                      "[!] Found the ADMIN$ share, but could not open it - check your credentials."
     except Exception as e:
-        print "[!] Unable to list shares (%s)" % str(e)
+        print "[!] Unable to list shares (%s)\n    (Is UAC/LocalAccountTokenFilterPolicy set?)" % str(e)
 
     if not FA:
         print "[!] ADMIN$ share not found for this server - further checks needed."
@@ -189,14 +193,14 @@ def chkport(IP): # Check if port 445/tcp is open
 def eko(aradia):
     global verbose
     if verbose:
-        print "[v:] " + aradia
+        print "[v] " + aradia
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def main():
     global uname, passwd, udom, verbose
     verbose = False
-    basics()
+    #basics()
 
     # HEADING
     lh = "*** SMBCHECK v" + __version__ + " ***"
@@ -208,7 +212,7 @@ def main():
     targets=[]
     targs=sys.argv[1:]
 
-    # check calls for usage/help
+    # check calls for usage/help first
     for target in targs:
         if target.lower() in ("-h", "--h", "-help", "--help"):
             usage()
@@ -216,7 +220,12 @@ def main():
 
         elif target[:2] == '-v':
             verbose = True
-            eko("Verbose = " + str(verbose))
+            eko("Verbose output on.")
+
+    if len(sys.argv)<5:
+        print "[!] Too few arguments... (%s)\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" % len(sys.argv)
+        usage()
+        sys.exit()
 
     for target in targs:
         if target[:3] == '-u:':
@@ -230,9 +239,6 @@ def main():
         elif target[:3] == '-d:':
             udom = target[3:]
             #print udom
-
-        elif target[:2] == '-v':
-            verbose = True
 
         elif target[:3] == '-L:': # found a list
             filename = target[3:]
@@ -293,16 +299,21 @@ def main():
                 targets.append(x)
              except Exception as e: 
                 print "[!] Ignoring %s as it does not appear to be a valid target..." % (target)
-                print "    (%s)" % e
-                print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                eko("    Reason: " + str(e))
+
+                #print "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   
+    if udom == "NONE":
+        udom = ""
+        print "[*] Setting Domain to a blank string..."
+
     if len(targets)>0:
-        print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        print "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         for target in targets: 
             smbscan(target)
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     else:
-        print "\n" + "="*40 + "\n" + "[!] No valid targets provided.\n"
+        print "\n" + "="*40 + "\n" + "[!] No valid targets provided.\n" + "="*40 + "\n"
 
 
 # --- Allow import without running the code --- #
@@ -311,4 +322,3 @@ if __name__ == "__main__":
     main()
 
 # ------END------- #
-
